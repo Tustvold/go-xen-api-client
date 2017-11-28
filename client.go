@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"github.com/amfranz/go-xmlrpc-client"
 	"net/http"
+	"log"
+	"github.com/davecgh/go-spew/spew"
 )
 
 type APIResult struct {
@@ -14,6 +16,11 @@ type APIResult struct {
 }
 
 func (client *Client) APICall(method string, params ...interface{}) (result APIResult, err error) {
+	log.Printf("[TRACE] APICall to method: %s", method)
+	for idx, param := range params {
+		log.Printf("[TRACE] Arg %d - %s", idx, param)
+	}
+
 	rpcParams := xmlrpc.Params{
 		Params: params,
 	}
@@ -27,7 +34,7 @@ func (client *Client) APICall(method string, params ...interface{}) (result APIR
 
 	status, ok := rpcResult["Status"].(string)
 	if !ok {
-		err = fmt.Errorf("Expected a field named %q with a string value in the response", "Status")
+		err = fmt.Errorf("expected a field named %q with a string value in the response", "Status")
 		return
 	}
 
@@ -50,6 +57,7 @@ func (client *Client) APICall(method string, params ...interface{}) (result APIR
 	}
 
 	result.Value = rpcResult["Value"]
+	log.Printf("[TRACE] Result - %s", spew.Sdump(result))
 	return
 }
 
